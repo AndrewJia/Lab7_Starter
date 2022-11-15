@@ -69,6 +69,10 @@ async function getRecipes() {
   // A1. TODO - Check local storage to see if there are any recipes.
   //            If there are recipes, return them.
   /**************************/
+  let fromStorage = JSON.parse(localStorage.getItem('recipes'));
+  if(fromStorage != null) {
+    return fromStorage;
+  }
   // The rest of this method will be concerned with requesting the recipes
   // from the network
   // A2. TODO - Create an empty array to hold the recipes that you will fetch
@@ -78,6 +82,22 @@ async function getRecipes() {
   //            take two parameters - resolve, and reject. These are functions
   //            you can call to either resolve the Promise or Reject it.
   /**************************/
+  let arrRecipes = [];
+  return new Promise(async (resolve, reject) => {
+    for (const recipe of RECIPE_URLS) {
+      try {
+        let fetched = await fetch(recipe);
+        let toJson = await fetched.json();
+        arrRecipes.push(toJson);
+      } catch (e) {
+        console.log(e);
+        reject(e);
+      }
+    }
+
+    saveRecipesToStorage(arrRecipes);
+    resolve(arrRecipes);
+  })
   // A4-A11 will all be *inside* the callback function we passed to the Promise
   // we're returning
   /**************************/
@@ -100,6 +120,7 @@ async function getRecipes() {
   //            resolve() method.
   // A10. TODO - Log any errors from catch using console.error
   // A11. TODO - Pass any errors to the Promise's reject() function
+
 }
 
 /**
